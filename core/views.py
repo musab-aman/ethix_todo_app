@@ -1,11 +1,15 @@
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import Todo, User
 
-
 def create_todo(request):
-    return HttpResponse("Create a new todo")
-
+    if request.method == "POST":
+        title = request.POST.get("title")
+        if title:
+            default_user = User.objects.first() 
+            Todo.objects.create(title=title, user=default_user)
+        return redirect('core:get_todos')
+    return render(request, "index.html")
 
 def get_todos(request):
     todos = Todo.objects.all()
@@ -34,5 +38,7 @@ def update_todo(request):
     return HttpResponse("Update a todo")
 
 
-def delelte_todo(request):
-    return HttpResponse("Delete a todo")
+def delete_todo(request, todo_id):
+    todo = Todo.objects.get(id=todo_id) 
+    todo.delete()
+    return redirect('core:get_todos') 
